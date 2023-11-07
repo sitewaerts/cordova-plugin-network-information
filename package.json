@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-network-information",
-  "version": "3.0.1-dev",
+  "version": "3.1.0",
   "description": "Cordova Network Information Plugin",
   "types": "./types/index.d.ts",
   "cordova": {
@@ -9,7 +9,8 @@
       "android",
       "ios",
       "windows",
-      "browser"
+      "browser",
+      "electron"
     ]
   },
   "repository": "github:apache/cordova-plugin-network-information",
@@ -22,7 +23,8 @@
     "cordova-android",
     "cordova-ios",
     "cordova-windows",
-    "cordova-browser"
+    "cordova-browser",
+    "cordova-electron"
   ],
   "scripts": {
     "test": "npm run lint",
@@ -31,14 +33,7 @@
   "author": "Apache Software Foundation",
   "license": "Apache-2.0",
   "engines": {
-    "cordovaDependencies": {
-      "3.0.0": {
-        "cordova": ">=9"
-      },
-      "4.0.0": {
-        "cordova": ">100"
-      }
-    }
+    "cordova": ">=3.3.0"
   },
   "devDependencies": {
     "@cordova/eslint-config": "^3.0.0"

@@ -21,8 +21,12 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
 xmlns:android="http://schemas.android.com/apk/res/android"
            id="cordova-plugin-network-information"
-      version="3.0.1-dev">
+      version="3.1.0">
 
+    <engines>
+        <engine name="cordova" version=">=3.3.0"/>
+        <engine name="cordova-electron" version=">=3.0.0"/>
+    </engines>
     <name>Network Information</name>
     <description>Cordova Network Information Plugin</description>
     <license>Apache 2.0</license>
@@ -83,5 +87,10 @@ xmlns:android="http://schemas.android.com/apk/res/android"
         <js-module src="src/browser/network.js" name="NetworkInfoProxy">
             <runs/>
         </js-module>
+    </platform>
+
+    <!-- electron -->
+    <platform name="electron">
+        <framework src="src/electron" />
     </platform>
 </plugin>

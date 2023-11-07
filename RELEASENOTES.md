@@ -20,6 +20,9 @@
 -->
 # Release Notes
 
+### 3.1.0 (Nov 07, 2023)
+-   added Electron platform implementation
+
 ### 3.0.0 (Jun 03, 2021)
 -   release 3.0.0 audit fix
 -   ci: add node-14.x to workflow

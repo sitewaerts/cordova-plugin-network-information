@@ -41,6 +41,7 @@ wifi connection, and whether the device has an internet connection.
 
 - Android
 - Browser
+- Electron
 - iOS
 - Windows
 
@@ -90,6 +91,19 @@ function checkConnection() {
 checkConnection();
 ```
 
+### Browser Quirks
+
+- Browser can't detect the type of network connection.
+`navigator.connection.type` is always set to `Connection.UNKNOWN` when online.
+
+### Electron Quirks
+
+- `navigator.connection.type` can only be one of the following values:
+  - `Connection.UNKNOWN`
+  - `Connection.ETHERNET`
+  - `Connection.WIFI`
+  - `Connection.NONE`
+
 ### iOS Quirks
 
 - <iOS7 can't detect the type of cellular network connection.
@@ -98,11 +112,6 @@ checkConnection();
 ### Windows Quirks
 
 - When running in the Phone 8.1 emulator, always detects `navigator.connection.type` as `Connection.ETHERNET`.
-
-### Browser Quirks
-
-- Browser can't detect the type of network connection.
-`navigator.connection.type` is always set to `Connection.UNKNOWN` when online.
 
 # Network-related Events
 
