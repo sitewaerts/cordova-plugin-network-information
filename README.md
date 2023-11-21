@@ -103,6 +103,7 @@ checkConnection();
   - `Connection.ETHERNET`
   - `Connection.WIFI`
   - `Connection.NONE`
+- The type will only change if the online/offline status changes
 
 ### iOS Quirks
 

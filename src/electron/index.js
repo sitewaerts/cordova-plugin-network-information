@@ -1,13 +1,18 @@
+const isOnline = require("@esm2cjs/is-online").default;
 const network = require('network');
 
 const logEnabled = false;
 const logPrefix = 'cordova-plugin-network-information/src/electron/index.js';
 
-function log(message, object) {
+function log(message, error) {
     if (logEnabled !== true) {
         return;
     }
-    console.error(`${logPrefix}: ${message}`, object);
+    if (error === undefined) {
+        console.log(`${logPrefix}: ${message}`);
+    } else {
+        console.error(`${logPrefix}: ${message}`, error);
+    }
 }
 
 // Values have to be kept in sync with ../../www/Connection.js
@@ -29,6 +34,10 @@ const ConnectionPollInterval = 1000;
 // Keep track of the last type so we only notify the app if the type changed
 let lastConnectionType = Connection.UNKNOWN;
 
+// Keep track of the online status so that we only query the connection type if necessary
+// Note that this approach means we can only detect connection type changes when the online status changes
+let lastOnlineStatus = null;
+
 // Convert the type property of a response from the network package to a Connection type
 const networkToConnectionType = function (networkType) {
     switch (networkType) {
@@ -49,16 +58,26 @@ const networkInformationPlugin = {
     getConnectionInfo: function(args, callbackContext)
     {
         const updateConnection = function () {
-            network.get_active_interface(function (err, obj) {
-                if (!obj || err) {
-                    callbackContext.error(err);
-                } else {
-                    const newConnectionType = networkToConnectionType(obj.type);
-                    if (lastConnectionType != newConnectionType) {
-                        lastConnectionType = newConnectionType;
-                        callbackContext.progress(newConnectionType);
-                    }
+            isOnline().then(newOnlineStatus => {
+                log(`status: ${newOnlineStatus}`);
+                if (newOnlineStatus === lastOnlineStatus) {
+                    return;
                 }
+                log(`status changed from ${lastOnlineStatus} to ${newOnlineStatus}`);
+                lastOnlineStatus = newOnlineStatus;
+                network.get_active_interface(function (err, obj) {
+                    if (!obj || err) {
+                        callbackContext.error(err);
+                    } else {
+                        const newConnectionType = networkToConnectionType(obj.type);
+                        if (lastConnectionType != newConnectionType) {
+                            lastConnectionType = newConnectionType;
+                            callbackContext.progress(newConnectionType);
+                        }
+                    }
+                });
+            }).catch(error => {
+                log('failed to retreive status', error);
             });
         };
 
