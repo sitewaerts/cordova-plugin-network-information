@@ -31,7 +31,7 @@ const Connection = {
 // So we use setInterval with the following interval for polling the state
 const ConnectionPollInterval = 1000;
 
-// Keep track of the last type so we only notify the app if the type changed
+// Keep track of the last type, so we only notify the app if the type changed
 let lastConnectionType = Connection.UNKNOWN;
 
 // Keep track of the online status so that we only query the connection type if necessary
@@ -50,9 +50,9 @@ const networkToConnectionType = function (networkType) {
 const networkInformationPlugin = {
     /**
      * Never calls callbackContext.success() in order to keep the plugin connection open.
-     * Instead uses callbackContext.progress() to update the connection state. 
+     * Instead, uses callbackContext.progress() to update the connection state.
      * @param {Array<any>} args currently not used (always empty)
-     * @param {CallbackContext} callbackContext
+     * @param {CordovaElectronCallbackContext} callbackContext
      * @void
      */
     getConnectionInfo: function(args, callbackContext)
@@ -70,18 +70,18 @@ const networkInformationPlugin = {
                         callbackContext.error(err);
                     } else {
                         const newConnectionType = networkToConnectionType(obj.type);
-                        if (lastConnectionType != newConnectionType) {
+                        if (lastConnectionType !== newConnectionType) {
                             lastConnectionType = newConnectionType;
                             callbackContext.progress(newConnectionType);
                         }
                     }
                 });
             }).catch(error => {
-                log('failed to retreive status', error);
+                log('failed to retrieve status', error);
             });
         };
 
-        // Execute once immedately so that the app startup is not delayed by the timer below
+        // Execute once immediately so that the app startup is not delayed by the timer below
         updateConnection();
 
         setInterval(updateConnection, ConnectionPollInterval);
@@ -89,11 +89,7 @@ const networkInformationPlugin = {
 }
 
 /**
- * cordova electron plugin api
- * @param {string} action
- * @param {Array<any>} args
- * @param {CallbackContext} callbackContext
- * @returns {boolean} indicating if action is available in plugin
+ * @type {CordovaElectronPlugin}
  */
 const plugin = function (action, args, callbackContext)
 {
