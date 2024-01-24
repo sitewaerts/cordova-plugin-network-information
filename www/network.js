@@ -26,26 +26,39 @@ var utils = require('cordova/utils');
 // Link the onLine property with the Cordova-supplied network info.
 // This works because we clobber the navigator object with our own
 // object in bootstrap.js.
-// Browser platform do not need to define this property, because
+// Browser and Electron platform do not need to define this property, because
 // it is already supported by modern browsers
-if (cordova.platformId !== 'browser' && typeof navigator !== 'undefined') {
+if (cordova.platformId !== 'browser' && cordova.platformId !== 'electron' && typeof navigator !== 'undefined') {
     utils.defineGetter(navigator, 'onLine', function () {
         return this.connection.type !== 'none';
     });
 }
+
+/**
+ * Attach connection info listener to the native backend
+ *
+ * @param {(connectionType:string)=>void} successCallback The function to call when the Connection data is available/modified
+ * @param {(error:any)=>void} [errorCallback] The function to call when there is an error getting the Connection data. (OPTIONAL)
+ */
+function getInfo(successCallback, errorCallback) {
+    exec(successCallback, errorCallback, 'NetworkStatus', 'getConnectionInfo', []);
+}
+
+
 
 function NetworkConnection () {
     this.type = 'unknown';
 }
 
 /**
- * Get connection info
- *
- * @param {Function} successCallback The function to call when the Connection data is available
- * @param {Function} errorCallback The function to call when there is an error getting the Connection data. (OPTIONAL)
+ * @deprecated
+ * @param {(connectionType:string)=>void} successCallback The function to call when the Connection data is available/modified
+ * @param {(error:any)=>void} [errorCallback] The function to call when there is an error getting the Connection data. (OPTIONAL)
  */
 NetworkConnection.prototype.getInfo = function (successCallback, errorCallback) {
-    exec(successCallback, errorCallback, 'NetworkStatus', 'getConnectionInfo', []);
+    console.warn("cordova-plugin-network-information: use of deprecated method getInfo()." +
+        " Better use navigator.onLine and navigator.connection.type to obtain current network state.");
+    getInfo(successCallback, errorCallback);
 };
 
 var me = new NetworkConnection();
@@ -56,7 +69,7 @@ channel.createSticky('onCordovaConnectionReady');
 channel.waitForInitialization('onCordovaConnectionReady');
 
 channel.onCordovaReady.subscribe(function () {
-    me.getInfo(function (info) {
+    getInfo(function (info) {
         me.type = info;
         if (info === 'none') {
             // set a timer if still offline at the end of timer send the offline event
@@ -84,8 +97,26 @@ channel.onCordovaReady.subscribe(function () {
         if (channel.onCordovaConnectionReady.state !== 2) {
             channel.onCordovaConnectionReady.fire();
         }
-        console.log('Error initializing Network Connection: ' + e);
+        console.error('Error initializing Network Connection: ' + e, e);
     });
+
+    if(cordova.platformId === 'electron')
+    {
+        var online = navigator.onLine;
+        function updateOnlineStatus() {
+            if(navigator.onLine!==online)
+            {
+                online = navigator.onLine;
+                exec(
+                    null,
+                    (error)=>{console.error("cannot set navigator online status", error);},
+                    'NetworkStatus', 'setNavigatorOnlineStatus', [online]
+                );
+            }
+        }
+        window.addEventListener('online', updateOnlineStatus)
+        window.addEventListener('offline', updateOnlineStatus)
+    }
 });
 
 module.exports = me;
