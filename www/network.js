@@ -109,7 +109,7 @@ channel.onCordovaReady.subscribe(function () {
                 online = navigator.onLine;
                 exec(
                     null,
-                    (error)=>{console.error("cannot set navigator online status", error);},
+                    function(error){console.error("cannot set navigator online status", error)},
                     'NetworkStatus', 'setNavigatorOnlineStatus', [online]
                 );
             }
