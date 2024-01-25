@@ -112,22 +112,24 @@ function updateConnection()
         if (!online)
             return setState({online: false, type: Connection.NONE});
 
-        return network.get_active_interface(function (err, obj)
-        {
-            if (err)
+        return new Promise((resolve)=>{
+            network.get_active_interface(function (err, obj)
             {
-                log('failed to retrieve active interface', err);
-                return setState({online: true, type: Connection.UNKNOWN})
-            }
-            else if (!obj)
-            {
-                log('no active interface', err);
-                return setState({online: true, type: Connection.UNKNOWN})
-            }
-            else
-            {
-                return setState({online: true, type: networkToConnectionType(obj.type)})
-            }
+                if (err)
+                {
+                    log('failed to retrieve active interface', err);
+                    resolve(setState({online: true, type: Connection.UNKNOWN}))
+                }
+                else if (!obj)
+                {
+                    log('no active interface', err);
+                    resolve(setState({online: true, type: Connection.UNKNOWN}))
+                }
+                else
+                {
+                    resolve(setState({online: true, type: networkToConnectionType(obj.type)}))
+                }
+            });
         });
     }).catch((error) =>
     {
